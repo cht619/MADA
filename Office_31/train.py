@@ -13,28 +13,31 @@ from MADA import networks, train
 from train_functions import get_data, data_path
 import os
 
-root_path = data_path.ImageCLEF_root_path
+root_path = data_path.Office_31_root_path
 feas_dim = 2048
-n_classes = 12
+n_classes = 31
 batch_size = 256
 encoder_out_dim = 512
 
-def train_to_csv(ds, dt, iterations=5, fea_type='Resnet50'):
+def train_to_csv(ds, dt, iterations=5, fea_type='Resnet50', n_Dtl=0.03):
     domain_name = '{}_{}'.format(ds[:-4], dt[:-4])
-    print('----------------{}---------------'.format(domain_name))
-    result_path = r'F:\Python_project\Experimental_Result\ImageCLEF\MADA\911'
+    result_path = r'F:\Python_project\Experimental_Result\Office_31\MADA\911'
     os.makedirs(result_path, exist_ok=True)
 
-    # Get features and labels
-    feas_ds, labels_ds = get_data.get_feas_labels(root_path, ds, fea_type=fea_type)
-    feas_dt, labels_dt = get_data.get_feas_labels(root_path, dt, fea_type=fea_type)
-    # Get dataloaders
-    dataloader_dt = get_data.get_src_dataloader_by_feas_labels(
-        feas_dt, labels_dt, batch_size=batch_size, normalization=True, fea_type=fea_type)
-    dataloader_ds = get_data.get_src_dataloader_by_feas_labels(
-        feas_ds, labels_ds, batch_size=batch_size, normalization=True, fea_type=fea_type)
+    # # Get features and labels
+    # feas_ds, labels_ds = get_data.get_feas_labels(root_path, ds, fea_type=fea_type)
+    # feas_dt, labels_dt = get_data.get_feas_labels(root_path, dt, fea_type=fea_type)
+    # # Get dataloaders
+    # dataloader_dt = get_data.get_src_dataloader_by_feas_labels(
+    #     feas_dt, labels_dt, batch_size=batch_size, normalization=True, fea_type=fea_type)
+    # dataloader_ds = get_data.get_src_dataloader_by_feas_labels(
+    #     feas_ds, labels_ds, batch_size=batch_size, normalization=True, fea_type=fea_type)
 
-    train_epoch = 400
+    dataloader_ds, dataloader_dt = get_data.get_sd_td_with_labels_dataloader(
+        root_path, ds, dt, fea_type=fea_type, n_Dtl=n_Dtl, batch_size=batch_size)
+    print('{}, Ds:{}, Dt:{}'.format(domain_name, len(dataloader_ds.dataset), len(dataloader_dt.dataset)))
+
+    train_epoch = 500
     domain_labels = [0.0, 1.0]
     loss_weights = [1, 0.5]
     dataloaders = [dataloader_ds, dataloader_dt]
@@ -56,9 +59,11 @@ def train_to_csv(ds, dt, iterations=5, fea_type='Resnet50'):
 
 if __name__ == '__main__':
 
-    train_to_csv(data_path.domain_c, data_path.domain_ci)
-    train_to_csv(data_path.domain_c, data_path.domain_cp)
-    train_to_csv(data_path.domain_p, data_path.domain_pc)
-    train_to_csv(data_path.domain_p, data_path.domain_pi)
-    train_to_csv(data_path.domain_i, data_path.domain_ic)
-    train_to_csv(data_path.domain_i, data_path.domain_ip)
+    train_to_csv(data_path.domain_a, data_path.domain_ad)
+    train_to_csv(data_path.domain_a, data_path.domain_aw)
+
+    train_to_csv(data_path.domain_d, data_path.domain_da)
+    train_to_csv(data_path.domain_w, data_path.domain_wa)
+
+    train_to_csv(data_path.domain_d, data_path.domain_dw)
+    train_to_csv(data_path.domain_w, data_path.domain_wd)

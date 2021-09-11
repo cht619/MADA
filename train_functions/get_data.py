@@ -85,3 +85,41 @@ def get_src_dataloader_by_feas_labels(feas, labels, batch_size=128, drop_last=Fa
     )
     return dataloader
 
+
+def get_ds_dtl_dtu(feas_ds, labels_ds, feas_dt, labels_dt, n_dtl):
+    extra_index = np.random.choice(len(feas_dt), int(n_dtl * len(feas_dt)), replace=False)
+
+    fea_tgt_label = np.asarray([feas_dt[i] for i in extra_index])
+    labels_tgt_label = np.asarray([labels_dt[i] for i in extra_index])
+
+    feas_dt = np.asarray([feas_dt[i] for i in range(len(feas_dt)) if i not in extra_index])
+    labels_dt = np.asarray([labels_dt[i] for i in range(len(labels_dt)) if i not in extra_index])
+
+    feas_ds = np.concatenate((feas_ds, fea_tgt_label), 0)
+    labels_ds = np.concatenate((labels_ds, labels_tgt_label), 0)
+
+    return feas_ds, labels_ds, feas_dt, labels_dt
+
+
+def get_sd_td_with_labels_dataloader(root_path, ds, dt, n_Dtl, fea_type, batch_size=100):
+    feas_src, labels_src = get_feas_labels(root_path, ds, fea_type=fea_type)
+    feas_tgt, labels_tgt = get_feas_labels(root_path, dt, fea_type=fea_type)
+
+    feas_src, labels_src, feas_tgt, labels_tgt = get_ds_dtl_dtu(feas_src, labels_src, feas_tgt, labels_tgt, n_Dtl)
+
+    fea_type = data.TensorDataset(torch.tensor(feas_src), torch.tensor(labels_src))
+    dataloader_src = data.DataLoader(
+        dataset=fea_type,
+        batch_size=batch_size,
+        shuffle=True,
+        drop_last=False,
+    )
+
+    fea_type = data.TensorDataset(torch.tensor(feas_tgt), torch.tensor(labels_tgt))
+    dataloader_tgt = data.DataLoader(
+        dataset=fea_type,
+        batch_size=batch_size,
+        shuffle=True,
+        drop_last=False,
+    )
+    return dataloader_src, dataloader_tgt

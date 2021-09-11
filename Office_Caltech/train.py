@@ -12,7 +12,9 @@ import csv
 from MADA import networks, train
 from train_functions import get_data, data_path
 import os
+import torch
 
+torch.cuda.set_device(1)
 root_path = data_path.ImageCLEF_root_path
 feas_dim = 2048
 n_classes = 12

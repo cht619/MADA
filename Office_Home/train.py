@@ -13,15 +13,15 @@ from MADA import networks, train
 from train_functions import get_data, data_path
 import os
 
-root_path = data_path.ImageCLEF_root_path
+root_path = data_path.Office_Home_root_path
 feas_dim = 2048
-n_classes = 12
+n_classes = 65
 batch_size = 256
 encoder_out_dim = 512
 
 def train_to_csv(ds, dt, iterations=5, fea_type='Resnet50', n_Dtl=0.03):
     domain_name = '{}_{}'.format(ds[:-4], dt[:-4])
-    result_path = r'F:\Python_project\Experimental_Result\ImageCLEF\MADA\911_0.03'
+    result_path = r'F:\Python_project\Experimental_Result\Office_Home\MADA\911_0.03'
     os.makedirs(result_path, exist_ok=True)
 
     # # Get features and labels
@@ -37,7 +37,7 @@ def train_to_csv(ds, dt, iterations=5, fea_type='Resnet50', n_Dtl=0.03):
         root_path, ds, dt, fea_type=fea_type, n_Dtl=n_Dtl, batch_size=batch_size)
     print('{}, Ds:{}, Dt:{}'.format(domain_name, len(dataloader_ds.dataset), len(dataloader_dt.dataset)))
 
-    train_epoch = 400
+    train_epoch = 600
     domain_labels = [0.0, 1.0]
     loss_weights = [1, 0.5]
     dataloaders = [dataloader_ds, dataloader_dt]
@@ -58,10 +58,18 @@ def train_to_csv(ds, dt, iterations=5, fea_type='Resnet50', n_Dtl=0.03):
 
 
 if __name__ == '__main__':
+    train_to_csv(data_path.domain_ar, data_path.domain_ar_cl)
+    train_to_csv(data_path.domain_ar, data_path.domain_ar_pr)
+    train_to_csv(data_path.domain_ar, data_path.domain_ar_rw)
 
-    train_to_csv(data_path.domain_c, data_path.domain_ci)
-    train_to_csv(data_path.domain_c, data_path.domain_cp)
-    train_to_csv(data_path.domain_p, data_path.domain_pc)
-    train_to_csv(data_path.domain_p, data_path.domain_pi)
-    train_to_csv(data_path.domain_i, data_path.domain_ic)
-    train_to_csv(data_path.domain_i, data_path.domain_ip)
+    train_to_csv(data_path.domain_cl, data_path.domain_cl_ar)
+    train_to_csv(data_path.domain_cl, data_path.domain_cl_pr)
+    train_to_csv(data_path.domain_cl, data_path.domain_cl_rw)
+
+    train_to_csv(data_path.domain_pr, data_path.domain_pr_ar)
+    train_to_csv(data_path.domain_pr, data_path.domain_pr_cl)
+    train_to_csv(data_path.domain_pr, data_path.domain_pr_rw)
+
+    train_to_csv(data_path.domain_rw, data_path.domain_rw_ar)
+    train_to_csv(data_path.domain_rw, data_path.domain_rw_cl)
+    train_to_csv(data_path.domain_rw, data_path.domain_rw_pr)
