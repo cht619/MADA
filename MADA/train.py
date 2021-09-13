@@ -71,7 +71,9 @@ def evaluate(net, dataloader_ds, dataloader_dt, alpha):
 
 
 def configure_optimizers(net, n_classes, op='SGD'):
-    # 这里非常重要，学习了的设置每一个模块不一样
+    # optimizer schedule 这里非常重要，学习了的设置每一个模块不一样
+    # 当然主要更网络结构、参数量还有关系
+    # 可以试试不同参数会导致什么结果，是overfitting还是underfitting
     model_parameter = [
         {
             "params": net.encoder.parameters(),
@@ -85,9 +87,9 @@ def configure_optimizers(net, n_classes, op='SGD'):
         },
         *[
             {
-                    "params": net.domain_classifier_multi[class_idx].parameters(),
-                    "lr_mult":  1.0,
-                    'decay_mult': 2,
+            "params": net.domain_classifier_multi[class_idx].parameters(),
+            "lr_mult":  1.0,
+            'decay_mult': 2,
             } for class_idx in range(n_classes)
         ]
     ]
@@ -100,7 +102,7 @@ def configure_optimizers(net, n_classes, op='SGD'):
             weight_decay=2.5e-5,
             nesterov=True)
 
-    elif op.cfg['training']['optimizer']['type'] == "Adam":
+    elif op == "Adam":
         optimizer = torch.optim.Adam(
             model_parameter,
             lr=0.001,
@@ -130,6 +132,7 @@ def training(dataloaders, net, train_epoch, loss_weights, n_classes, lr=1e-3):
     criterion_c = torch.nn.CrossEntropyLoss()
     optimizer = optim.SGD(net.parameters(), lr=lr, momentum=0.9, weight_decay=1e-5)
     # optimizer = optim.Adam(net.parameters(), lr=lr,)
+    # optimizer schedule很重要
     optimizer = configure_optimizers(net, n_classes)
     iter_ds = iter_dt = acc_tgt_best = 0
 
